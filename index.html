@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>قصتي تروى</title>
+    <style>
+    :root {
+        --dark-blue: #0f172a;
+        --card-bg: #1e293b;
+        --accent-green: #22c55e;
+        --text-white: #f8fafc;
+        --yellow: #fbbf24;
+        --red: #ef4444;
+    }
+
+    body {
+        font-family: 'Cairo', sans-serif;
+        background-color: var(--dark-blue);
+        color: var(--text-white);
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        overflow-x: hidden;
+    }
+
+    /* تعديل الشاشة لتكون العناصر موزعة من الأعلى للأسفل */
+    .screen { 
+        display: none; 
+        width: 100%; 
+        max-width: 1000px; 
+padding: 40px 20px;
+        flex-direction: column; 
+        align-items: center; 
+        text-align: center; 
+        min-height: 100vh; /* تأمين ارتفاع كافٍ */
+		justify-content: center; /* هذا ما سينقل الأزرار لمنتصف الصفحة عمودياً */
+    }
+    
+    .active { display: flex; }
+
+    /* دفع العنوان لرأس الصفحة */
+    h1 { 
+        color: var(--accent-green); 
+        font-size: 4rem; 
+        margin-top: 20px; 
+        margin-bottom: 50px; /* مسافة كبيرة تحت العنوان */
+    }
+
+    .content-box {
+        background: var(--card-bg);
+        padding: 30px;
+        border-radius: 25px;
+        width: 90%;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        margin-top: auto; /* يساعد في موازنة العناصر */
+        margin-bottom: auto;
+    }
+
+    /* أزرار الواجهة الرئيسية الكبيرة */
+    .home-grid .btn-main {
+        height: 150px; /* زيادة الارتفاع */
+        font-size: 1.8rem; /* تكبير الخط */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 15px;
+        border-radius: 25px;
+        transition: transform 0.3s ease;
+    }
+
+    .home-grid .btn-main span {
+        font-size: 3.5rem; /* تكبير الإيموجي */
+    }
+
+    .home-grid .btn-main:hover {
+        transform: scale(1.05);
+    }
+
+    .btn-main {
+        background: var(--accent-green);
+        color: var(--dark-blue);
+        border: none;
+        padding: 18px;
+        font-size: 1.3rem;
+        font-weight: 900;
+        border-radius: 15px;
+        cursor: pointer;
+        width: 100%;
+        margin-top: 15px;
+        box-shadow: 0 4px 0px #166534;
+    }
+
+    .btn-main:active { transform: translateY(4px); box-shadow: none; }
+    .btn-red { background: var(--red); color: white; box-shadow: 0 4px 0px #991b1b; }
+    .btn-yellow { background: var(--yellow); color: var(--dark-blue); box-shadow: 0 4px 0px #b45309; }
+
+    input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px; border: none; font-size: 1.1rem; }
+    .story-text { font-size: 1.5rem; line-height: 1.8; margin-bottom: 25px; text-align: justify; }
+</style>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap" rel="stylesheet">
+</head>
+<body onload="initApp()">
+
+<div id="auth-screen" class="screen active">
+    <h1>قصتي تروى</h1>
+    <div class="content-box">
+        <h2 id="auth-title">تسجيل الدخول</h2>
+        <input type="text" id="username" placeholder="اسم المستخدم">
+        <input type="password" id="password" placeholder="كلمة المرور">
+        <button class="btn-main" onclick="handleAuth()" id="auth-btn">دخول</button>
+        <p onclick="toggleAuthMode()" id="toggle-link" style="cursor:pointer; margin-top:20px; color: #94a3b8;">
+            لا تملك حساباً؟ <span style="color: var(--accent-green);">أنشئ حساباً الآن</span>
+        </p>
+    </div>
+</div>
+<div id="grammar-quiz-screen" class="screen">
+    <!-- التعديل هنا: أضفنا id للنص -->
+    <h1 id="g-quiz-title">اختبار القواعد 🎯</h1> 
+    <div class="content-box">
+        <h2 id="g-quiz-question" style="color:var(--yellow)"></h2>
+        <div id="g-quiz-options"></div>
+        <button class="btn-main btn-red" onclick="showScreen('view-grammar-screen'); stopSpeech();">انسحاب</button>
+    </div>
+</div>
+<div id="home-screen" class="screen">
+    <h1>قصتي تروى</h1>
+    
+    <!-- حاوية الأزرار - جعلناها في المنتصف تماماً -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; width: 95%; max-width: 900px; margin-bottom: auto;">
+        
+       <button class="btn-main" onclick="showScreen('grammar-menu-screen'); speak('قائمة القواعد، تحتوي القائمة على عدة قواعد منها: درس الشدة، ودرس التنوين، ودرس ال التعريف. يمكنك إضافة القاعدة التي تعجبك إلى قائمة المفضلات عن طريق النجمة الموضوعة بجانب الأيقونة.');" style="height: 180px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px;">
+    <span style="font-size: 3.5rem;">✍️</span> 
+    القواعد
+</button>
+
+        <button class="btn-main btn-yellow" onclick="showScreen('favorites-screen');" style="height: 180px; display: flex; flex-direction: column; justify-content: center;">
+            <span style="font-size: 3.5rem;">⭐</span> المفضلات
+        </button>
+
+        <button class="btn-main" onclick="showStories()" style="height: 180px; display: flex; flex-direction: column; justify-content: center; background: #38bdf8;">
+            <span style="font-size: 3.5rem;">📖</span> القصص
+        </button>
+        
+    </div>
+</div>
+<div id="grammar-menu-screen" class="screen">
+    <h1>قائمة القواعد ✍️</h1>
+    <div class="content-box">
+        <!-- درس الشدة -->
+        <div style="position: relative; width: 100%; max-width: 500px; margin: 10px auto;">
+            <button class="btn-main" onclick="loadShadda()" style="margin-top:0; width: 100%;">📘 درس الشَّدّة ( ّ )</button>
+            <span id="fav-star-shadda" onclick="toggleFavoriteGrammar('درس الشدة', event)" 
+                  style="cursor: pointer; font-size: 2.2rem; color: #64748b; position: absolute; left: 15px; top: 50%; transform: translateY(-50%); z-index: 10; text-shadow: 0 1px 3px rgba(0,0,0,0.3);">☆</span>
+        </div>
+
+        <!-- درس التنوين الجديد -->
+        <div style="position: relative; width: 100%; max-width: 500px; margin: 10px auto;">
+            <button class="btn-main" onclick="loadTanweenLesson()" style="margin-top:0; width: 100%;">📘 درس التنوين (ً ٌ ٍ)</button>
+            <span id="fav-star-tanween" onclick="toggleFavoriteGrammar('درس التنوين', event)" 
+                  style="cursor: pointer; font-size: 2.2rem; color: #64748b; position: absolute; left: 15px; top: 50%; transform: translateY(-50%); z-index: 10;">☆</span>
+        </div>
+        <div style="position: relative; width: 100%; max-width: 500px; margin: 10px auto;">
+    <button class="btn-main" onclick="loadAlDefinition()" style="margin-top:0; width: 100%;">📘 درس ال التعريف</button>
+    <span id="fav-star-al" onclick="toggleFavoriteGrammar('درس ال التعريف', event)" 
+          style="cursor: pointer; font-size: 2.2rem; color: #64748b; position: absolute; left: 15px; top: 50%; transform: translateY(-50%); z-index: 10;">☆</span>
+</div>
+        <!-- زر الرجوع -->
+        <button class="btn-main btn-red" onclick="showScreen('home-screen')" style="margin-top: 20px;">رجوع</button>
+    </div>
+</div>
+<div id="favorites-screen" class="screen">
+    <h1>المفضلات ⭐</h1>
+    <div class="content-box">
+        <button class="btn-main" onclick="showFavType('stories')">📖 قصصي المفضلة</button>
+        <button class="btn-main btn-yellow" onclick="showFavType('grammar')">✍️ قواعدي المفضلة</button>
+        
+        <div id="fav-items-display" style="margin-top: 20px;"></div>
+        
+        <button class="btn-main btn-red" onclick="showScreen('home-screen')">رجوع</button>
+    </div>
+</div>
+<div id="stories-screen" class="screen">
+    <h1>قائمة القصص</h1>
+    
+    <div style="position: relative; width: 100%; max-width: 500px; margin: 0 auto;">
+        
+        <button class="btn-main" onclick="loadStory()" style="margin-top:0; width: 100%;">🦁 قصة أسد الغابة</button>
+        
+        <span id="fav-star-list" onclick="toggleFavoriteList('قصة أسد الغابة', event)" 
+              style="cursor: pointer; 
+                     font-size: 2.2rem; 
+                     color: #64748b; 
+                     position: absolute; 
+                     left: 15px; 
+                     top: 50%; 
+                     transform: translateY(-50%); 
+                     z-index: 10;
+                     text-shadow: 0 1px 3px rgba(0,0,0,0.3);">☆</span>
+    </div>
+	<div style="position: relative; width: 100%; max-width: 500px; margin: 10px auto;">
+        <button class="btn-main" onclick="loadStory2()" style="margin-top:0; width: 100%;">🐢 الأرنب والسلحفاة</button>
+        <span id="fav-star-story2" onclick="toggleFavoriteList('قصة الأرنب والسلحفاة', event)" 
+              style="cursor: pointer; font-size: 2.2rem; color: #64748b; position: absolute; left: 15px; top: 50%; transform: translateY(-50%); z-index: 10; text-shadow: 0 1px 3px rgba(0,0,0,0.3);">☆</span>
+    </div>
+    <div style="position: relative; width: 100%; max-width: 500px; margin: 10px auto;">
+        <button class="btn-main" onclick="loadStory3()" style="margin-top:0; width: 100%;">💰 قصة التاجر والميزان</button>
+        <span id="fav-star-story3" onclick="toggleFavoriteList('قصة التاجر والميزان', event)" style="cursor: pointer; font-size: 2.2rem; color: #64748b; position: absolute; left: 15px; top: 50%; transform: translateY(-50%); z-index: 10;">☆</span>
+    </div>
+    
+    <button class="btn-main btn-red" onclick="showScreen('home-screen')" style="margin-top: 20px;">رجوع</button>
+</div>
+<div id="view-story-screen" class="screen">
+<h1 id="story-title">أسد الغابة</h1>
+    <div class="content-box">
+        <div id="story-text-div" class="story-text"></div>
+        <button class="btn-main" onclick="playStory()">▶️ استمع للقصة</button>
+        <button class="btn-main" onclick="stopSpeech()" style="background:#64748b; color:white;">⏹️ إيقاف الصوت</button>
+        <button class="btn-main btn-yellow" onclick="showVocab()">📚 المفردات والمعاني</button>
+		<button class="btn-main" style="background: #38bdf8;" onclick="showInfo('chars')">👤 وصف الشخصيات</button>
+<button class="btn-main" style="background: #a855f7;" onclick="showInfo('lesson')">💡 العبرة من القصة</button>
+        <button class="btn-main btn-red" onclick="showScreen('stories-screen'); stopSpeech();">رجوع</button>
+    </div>
+</div>
+<div id="vocab-screen" class="screen">
+    <h1>المفردات والمعاني</h1>
+    <div class="content-box" id="vocab-list"></div>
+
+    <button class="btn-main" onclick="playVocab()">▶️ استمع للمعاني</button>
+    <button class="btn-main" onclick="stopSpeech()" style="background:#64748b; color:white;">⏹️ إيقاف الصوت</button>
+
+    <button class="btn-main btn-yellow" onclick="startQuiz()">🎮 ابدأ اختبار المعاني</button>
+    <button class="btn-main btn-red" onclick="showScreen('view-story-screen'); stopSpeech();">رجوع للقصة</button>
+</div>
+
+<div id="quiz-screen" class="screen">
+    <h1>اختبر ذكاءك</h1>
+    <div class="content-box">
+        <h2 id="quiz-question" style="color:var(--yellow)"></h2>
+        <div id="quiz-options"></div>
+        <button class="btn-main btn-red" onclick="showScreen('vocab-screen'); stopSpeech();" style="margin-top: 20px;">انسحاب</button>
+    </div>
+</div>
+<div id="view-grammar-screen" class="screen">
+    <h1 id="grammar-title">📘 درس الشَّدّة</h1>
+    <div class="content-box" style="position: relative;">  
+        <div id="grammar-text-div" class="story-text" style="white-space: pre-line; text-align: right;"></div>
+        
+        <!-- 1. زر الاستماع -->
+        <button class="btn-main" onclick="playGrammar()">▶️ استمع للقاعدة</button>
+        
+        <!-- 2. زر الإيقاف (تم نقله هنا) -->
+        <button class="btn-main" onclick="stopSpeech()" style="background:#64748b; color:white;">⏹️ إيقاف الصوت</button>
+        
+        <!-- 3. زر الاختبار -->
+        <button class="btn-main btn-yellow" onclick="startGrammarQuiz()">🎮 اختبر نفسك</button>
+        
+        <!-- 4. زر الرجوع -->
+        <button class="btn-main btn-red" onclick="showScreen('grammar-menu-screen'); stopSpeech();">رجوع</button>
+    </div>
+</div>
+<script>
+let registeredUsers = JSON.parse(localStorage.getItem('myUsers')) || [];
+    let isSignUpMode = false;
+	// تقسيم المفضلات لقسمين
+let favorites = JSON.parse(localStorage.getItem('myFavorites')) || { stories: [], grammar: [] };
+    const synth = window.speechSynthesis;
+
+    const storyContent = "في غابةٍ صغيرة، كان هناك أسد اسمه ليث يحب مساعدة الجميع. في يومٍ ما، علق عصفور صغير بين الأغصان ولم يستطع الطيران. جاء ليث بهدوء، وأبعد الأغصان بحذر حتى خرج العصفور سالمًا. شكره العصفور وقال: أنت قوي ولطيف! ابتسم ليث وقال: القوة الحقيقية هي مساعدة الآخرين.";
+    const story2Content = "في غابة بعيدة، تفاخر الأرنب بسرعته الكبيرة وسخر من السلحفاة لبطئها. قررا أن يتسابقا، ركض الأرنب بسرعة ثم نام تحت شجرة ليأخذ استراحة. أما السلحفاة، فاستمرت بالمشي بصبر وهدوء دون توقف. عندما استيقظ الأرنب، وجد السلحفاة قد وصلت لخط النهاية وفازت. تعلم الأرنب أن الإصرار والعمل بجد أهم من السرعة والغرور.";
+   let vocabData = []; // هذه ستبقى فارغة وسيتم ملؤها عند تحميل كل قصة
+
+const stories = {
+    lion: {
+        title: "أسد الغابة",
+        content: storyContent,
+        vocab: [
+            { word: "غابة", meaning: "مكان فيه أشجار كثيرة وحيوانات", options: ["مكان فيه أشجار", "حديقة صغيرة"], correct: 0 },
+            { word: "علق", meaning: "بقي محبوسًا أو لم يستطع التحرك", options: ["هرب سريعاً", "بقي محبوساً"], correct: 1 },
+            { word: "الأغصان", meaning: "أجزاء الشجرة التي تخرج منها الأوراق", options: ["جذور الشجرة", "أجزاء الشجرة"], correct: 1 },
+            { word: "بحذر", meaning: "بلطف وانتباه حتى لا يحدث ضرر", options: ["بسرعة كبيرة", "بلطف وانتباه"], correct: 1 },
+            { word: "سالمًا", meaning: "بدون أذى أو إصابة", options: ["بدون أذى", "متعباً جداً"], correct: 0 }
+        ]
+    },
+    rabbit: {
+        title: "الأرنب والسلحفاة",
+        content: story2Content,
+        vocab: [
+            { word: "يفتخر", meaning: "يتباهى بنفسه", options: ["يتباهى بنفسه", "يتواضع"], correct: 0 },
+            { word: "يسخر", meaning: "يستهزئ أو يضحك على الآخرين", options: ["يمدح الآخرين", "يستهزئ بالآخرين"], correct: 1 },
+            { word: "بثقة", meaning: "بإيمان قوي بالنفس", options: ["بإيمان قوي", "بخوف وتردد"], correct: 0 },
+            { word: "انطلق", meaning: "بدأ بسرعة", options: ["توقف فجأة", "بدأ بسرعة"], correct: 1 },
+            { word: "تفاجأ", meaning: "اندهش من شيء غير متوقع", options: ["اندهش", "كان يعرف"], correct: 0 }
+        ]
+    },
+    merchant: {
+    title: "قصة التاجر والميزان العادل",
+    content: `في قديم الزمان، كان هناك تاجر يُدعى سليم يعيش في مدينة مزدهرة على طريق القوافل. كان سليم يبيع الحبوب والتوابل، واشتهر بين الناس بأنه "صادق في تجارته" لا يغش ولا يظلم أحدًا. 
+
+في أحد الأيام، جاء تاجر غريب إلى المدينة، يحمل معه توابل نادرة وثمينة. أعجب سليم بالبضاعة، وقرر شراء كمية كبيرة منها. لكن التاجر الغريب عرض عليه سعرًا أقل من السوق، بشرط أن يتم الوزن بسرعة دون تدقيق. 
+
+تردد سليم قليلًا، ثم قال لنفسه: "الفرصة لا تأتي مرتين". فوافق على الصفقة دون أن يتحقق جيدًا من الميزان. بعد أيام، بدأ الزبائن يشتكون من جودة التوابل، وأن الكمية أقل مما دفعوا ثمنه. 
+
+شعر سليم بالقلق، وقرر فحص البضاعة بنفسه. اكتشف أن الميزان الذي استخدمه التاجر الغريب كان ناقصًا ويعطي وزنًا أقل من الحقيقي. حزن سليم بشدة، لكنه قرر تصحيح خطئه. جمع الناس في السوق، وأخبرهم بالحقيقة، وأعاد إليهم أموالهم أو عوضهم بالبضاعة الصحيحة. 
+
+ثم تخلص من الميزان المعيب، وعاد ليستخدم ميزانًا دقيقًا فقط. ومنذ ذلك اليوم، صار أكثر حرصًا، وأصبح مثالًا في الأمانة حتى بين التجار الكبار.`,
+    vocab: [
+        { word: "مزدهرة", meaning: "متطورة وناجحة وغنية", options: ["متطورة وغنية", "فقيرة وضعيفة"], correct: 0 },
+        { word: "القوافل", meaning: "مجموعات من التجار المسافرين معاً", options: ["مجموعات تجار", "بيوت ثابتة"], correct: 0 },
+        { word: "تدقيق", meaning: "فحص الشيء بعناية وتركيز", options: ["فحص بعناية", "إهمال"], correct: 0 },
+        { word: "المعيب", meaning: "الشيء الذي فيه خلل أو عطل", options: ["فيه خلل", "سليم تماماً"], correct: 0 },
+        { word: "الأمانة", meaning: "الصدق والحفاظ على الحقوق", options: ["الصدق", "الكذب"], correct: 0 }
+    ]
+}
+};
+	const extraInfo = {
+	lion: {
+    chars: "وصف الشخصيات: أولاً الأسد ليث، هو حيوان كبير وقوي، لونه أصفر مائل للبني، عنده شعر حول رأسه كثيف مثل التاج، عيونه قوية لكنها لطيفة، ويمشي بثقة لأنه طيب القلب. ثانياً العصفور الصغير، هو صغير جداً وخفيف، ريشه ناعم وصوته رقيق، وكان خائفاً لأنه عالق بين الأغصان.",
+    lesson: "العبرة من القصة هي: أن القوة الحقيقية ليست في العضلات أو الحجم الكبير، بل في مساعدة الآخرين واللطف معهم."
+},
+rabbit: {
+chars: " أولا الأرنب: فروه ناعم وخفيف كأنه يرتدي ملابس رياضية تساعده على الحركة السريعة، وأذناه طويلتان بارزتان. من الناحية النفسية هو مغرور وواثق بنفسه بشكل زائد، ويستهين بالآخرين ولا يأخذ الأمور بجدية دائمًا. ثانيا السلحفاة: تحمل درعًا صلبًا على ظهرها كأنه معطف ثقيل وخشن، يجعل حركتها بطيئة وثابتة. نفسيًا هي هادئة وصبورة، تركّز على هدفها، وتملك ثقة داخلية بدون غرور.", 
+lesson: "النجاح لا يعتمد على السرعة فقط، بل على الصبر والاستمرار. التكبر قد يؤدي إلى الفشل، بينما العمل الجاد والثبات يقودان إلى النجاح "
+},
+merchant: {
+        chars: "وصف الشخصيات: التاجر سليم، هو رجل بملامح طيبة يرتدي ملابس بسيطة ونظيفة، يمتاز بصدقه وصبره، ودائماً ما يحرص على رضا الناس. أما التاجر الغريب، فهو يرتدي ملابس ملونة وجديدة، لكن ملامحه توحي بالتسرع، ويحمل ميزاناً خشبياً يبدو قديماً وغير دقيق.",
+        lesson: "العبرة من القصة هي: أن الأمانة في المعاملات هي أساس النجاح الحقيقي. التسرع في كسب المال قد يؤدي إلى الندم، والاعتراف بالخطأ وتصحيحه هو من سمات التجار الصادقين."
+    }
+};
+let currentStory = "lion";
+const grammarLessons = {
+    shadda: {
+        title: "درس الشَّدّة ( ّ )",
+        content: "الشدة هي علامة نضعها فوق الحرف، وتدل على أن الحرف ينطق مرتين. الحرف الأول يكون ساكناً والثاني متحركاً. مثل كلمة أم، وهي عبارة عن أمْ مَ. عند رؤية الشدة نحبس الصوت قليلاً ثم نكمل القراءة. أمثلة: رد، سم، درس، وحب.",
+    quiz: [  { q: "ما هي الشدة؟", options: ["علامة تدل على حرفين", "علامة تدل على حرف واحد"], correct: 0 },
+    { q: "الحرف الأول في الشدة يكون دائماً:", options: ["متحركاً", "ساكناً"], correct: 1 },
+    { q: "كيف نقرأ كلمة (رَدَّ)؟", options: ["رَدْ دَ", "رَ دَ"], correct: 0 },
+    { q: "أين نضع الشدة؟", options: ["فوق الحرف", "تحت الحرف"], correct: 0 }
+]
+	},
+	tanween: {
+        title: "درس التنوين",
+        content: "التنوين هو نون ساكنة تُلفظ في آخر الكلمة ولا تُكتب حرفًا، بل تُكتب على شكل حركتين. أنواعه ثلاثة: تنوين الفتح مثل كتاباً، تنوين الضم مثل كتابٌ، وتنوين الكسر مثل كتابٍ ، التنوين يكون دائماً في آخر الكلمة، وعند الوقف لا ننطق التنوين.",
+        quiz: [
+            { q: "كم عدد أنواع التنوين؟", options: ["ثلاثة", "اثنان"], correct: 0 },
+            { q: "تنوين الفتح يكون على شكل:", options: ["فتحتين", "ضمتين"], correct: 0 },
+            { q: "كلمة (كتابٌ) تحتوي على:", options: ["تنوين ضم", "تنوين كسر"], correct: 0 },
+            { q: "كلمة (قلمٍ) تحتوي على:", options: ["تنوين كسر", "تنوين فتح"], correct: 0 }
+        ]
+    },
+	// أضيفي هذا الجزء داخل متغير grammarLessons بعد درس التنوين
+alDefinition: {
+    title: "درس ال التعريف",
+    content: "ال التعريف هي حروف نضيفها في بداية الكلمة لتحويلها من نكرة إلى معرفة، مثل كتاب تصبح الكتاب. وتنقسم إلى نوعين: اللام الشمسية واللام القمرية. في اللام الشمسية لا ننطق حرف اللام ويكون الحرف الذي بعدها مشدد مثل الشمس والنمر، أما في اللام القمرية فننطق حرف اللام بوضوح مثل القمر والكتاب.",
+    quiz: [
+        { q: "ما وظيفة ال التعريف؟", options: ["تحويل الكلمة إلى معرفة", "تحويل الكلمة إلى فعل"], correct: 0 },
+        { q: "في كلمة (الشمس) نوع اللام هو:", options: ["شمسية", "قمرية"], correct: 0 },
+        { q: "هل ننطق اللام في اللام الشمسية؟", options: ["لا", "نعم"], correct: 0 },
+        { q: "أي كلمة تحتوي على لام قمرية؟", options: ["الكتاب", "الشمس"], correct: 0 }
+    ]
+}
+};
+   let currentGrammar = "shadda"; // قيمة افتراضية
+
+let currentGrammarQ = 0; // متغيّر لمتابعة رقم السؤال
+    function speak(txt, callback) {
+        synth.cancel();
+        let u = new SpeechSynthesisUtterance(txt);
+        u.lang = 'ar-SA';
+        u.rate = 0.9;
+        if (callback) u.onend = callback;
+        synth.speak(u);
+    }
+
+    function stopSpeech() { synth.cancel(); }
+	document.addEventListener('click', function() {
+    if (!synth.speaking && document.getElementById('auth-screen').classList.contains('active')) {
+        initApp();
+    }
+}, { once: true }); // يتنفذ مرة واحدة فقط عند أول لمسة للشاشة
+
+    function initApp() {
+        speak("مرحباً بك في تطبيق قصتي تروى. الرجاء تسجيل الدخول أو إنشاء حساب جديد.");
+    }
+
+    function toggleAuthMode() {
+        isSignUpMode = !isSignUpMode;
+        document.getElementById('auth-title').innerText = isSignUpMode ? "إنشاء حساب جديد" : "تسجيل الدخول";
+        document.getElementById('auth-btn').innerText = isSignUpMode ? "تسجيل" : "دخول";
+        speak(isSignUpMode ? "أنت الآن في شاشة إنشاء حساب" : "أنت الآن في شاشة تسجيل الدخول");
+    }
+
+    function handleAuth() {
+        const u = document.getElementById('username').value.trim();
+        const p = document.getElementById('password').value.trim();
+        if (!u || !p) { speak("الرجاء إدخال البيانات"); return; }
+
+        if (isSignUpMode) {
+            registeredUsers.push({user: u, pass: p});
+            speak("تم إنشاء الحساب بنجاح. سجل دخولك الآن.");
+			localStorage.setItem('myUsers', JSON.stringify(registeredUsers));
+            toggleAuthMode();
+        } else {
+            const found = registeredUsers.find(x => x.user === u && x.pass === p);
+            if (found) {
+                showScreen('home-screen');
+               speak("تم تسجيل الدخول بنجاح. أهلاً بك يا " + u + ". الشاشة الرئيسية تحتوي على ثلاثة أزرار: الزر الأول في اليمين لقواعد اللغة العربية، الزر الثاني في الوسط للمفضلات، والزر الثالث في اليسار لقصص الأطفال.");
+            } else {
+                speak("البيانات غير صحيحة. هل قمت بإنشاء حساب؟");
+            }
+        }
+    }
+
+    function showScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+
+    function showStories() {
+    showScreen('stories-screen');
+    const star = document.getElementById('fav-star-list');
+    
+    // الفحص الصحيح: هل القصة موجودة داخل الـ Object الجديد؟
+    if (favorites.stories.includes("قصة أسد الغابة")) {
+        star.innerText = "★";
+        star.style.color = "#fbbf24";
+    } else {
+        star.innerText = "☆";
+        star.style.color = "#64748b";
+    }
+    const star2 = document.getElementById('fav-star-story2');
+    if (favorites.stories.includes("قصة الأرنب والسلحفاة")) {
+        star2.innerText = "★";
+        star2.style.color = "#fbbf24";
+    } else {
+        star2.innerText = "☆";
+        star2.style.color = "#64748b";
+    }
+    speak("قائمة القصص، تحتوي القائمة على عدة قصص منها، قصة أسد الغابة، قصة الأرنب و السلحفاة، قصة التاجر و الميزان، يمكنك إضافة القصة التي تعجبك إلى قائمة المفضلات عن طريق النجمة الموضوعة بجانب الأيقونة.");
+updateStoryStars();
+}
+
+    function loadStory() {
+	currentStory = "lion";
+        document.getElementById('story-text-div').innerText = storyContent;
+        showScreen('view-story-screen');
+        speak("قصة أسد الغابة. يمكنك الاستماع للقصة عن طريق زر استمع للقصة  و  يمكنك التوقف عن الاستماع عن طريق زر إيقاف القصة. و يمكنك تعلم المفردات و المعاني و معرفة وصف الشخصيات و و الاستماع إلى العبرة من القصة");
+    }
+
+    function playStory() {
+    // بياخد النص الموجود قدامه على الشاشة حالياً وبيقرأه
+    const currentText = document.getElementById('story-text-div').innerText;
+    speak(currentText);
+}
+
+    function showVocab() {
+        const listDiv = document.getElementById('vocab-list');
+        listDiv.innerHTML = "";
+        let speech = "المعاني هي: ";
+        const vocab = stories[currentStory].vocab;
+vocab.forEach(v => {
+            listDiv.innerHTML += `<div class="vocab-item"><b>${v.word}:</b> ${v.meaning}</div>`;
+            speech += `${v.word} تعني ${v.meaning}. `;
+        });
+        showScreen('vocab-screen');
+		    speak("يمكنك تشغيل الصوت للاستماع للمفردات، وإيقافه عند الحاجة، وبعد الانتهاء يمكنك اختبار نفسك بالمعاني.");
+
+    }
+
+    function startQuiz() {
+        showScreen('quiz-screen');
+        runQuestion(0);
+    }
+
+    function runQuestion(index) {
+    // جلب مفردات القصة الحالية المختارة
+    vocabData = stories[currentStory].vocab;
+
+    if (index >= vocabData.length) {
+        speak("مرحى! لقد أنجزت المهمة بنجاح وتفوقت", () => showScreen('home-screen'));
+        return;
+    }
+
+    const q = vocabData[index];
+    document.getElementById('quiz-question').innerText = `ما معنى ${q.word}؟`;
+    const div = document.getElementById('quiz-options');
+    div.innerHTML = "";
+    
+    let speech = `ما معنى كلمة ${q.word}؟ الخيارات هي: `;
+    q.options.forEach((opt, i) => {
+        speech += `الخيار ${i+1}: ${opt}. `;
+        div.innerHTML += `<button class="btn-main" onclick="checkAnswer(${index}, ${i})">خيار ${i+1}: ${opt}</button>`;
+    });
+    speak(speech);
+}function toggleFavoriteList(itemTitle, event) {
+    event.stopPropagation();
+    
+    // تحديد نوع العنصر (قصة أم قاعدة)
+    let type = itemTitle.includes("درس") ? "grammar" : "stories";
+
+    if (favorites[type].includes(itemTitle)) {
+        favorites[type] = favorites[type].filter(item => item !== itemTitle);
+        speak("تمت الإزالة من المفضلات");
+    } else {
+        favorites[type].push(itemTitle);
+        speak("تمت الإضافة إلى المفضلات");
+    }
+    
+    updateStoryStars();
+    updateGrammarStarUI(); // تحديث النجوم في شاشة القواعد أيضاً
+}
+function showInfo(type) {
+    const text = extraInfo[currentStory][type];
+    document.getElementById('story-text-div').innerText = text;
+    speak(text);
+}
+function showFavType(type) {
+    const display = document.getElementById('fav-items-display');
+    const items = favorites[type]; 
+    
+    speak("أنت الآن في قسم المفضلات.");
+
+    if (items.length === 0) {
+        let msg = type === 'stories' ? "قسم القصص فارغ" : "قسم القواعد فارغ";
+        display.innerHTML = `<p style="color: #94a3b8;">${msg}</p>`;
+        speak(msg);
+    } else {
+        display.innerHTML = "";
+        let speech = type === 'stories' ? "قصصك المفضلة هي: " : "قواعدك المفضلة هي: ";
+        
+        // داخل دالة showFavType
+items.forEach(item => {
+    speech += item + ". ";
+    let targetFunction = "";
+
+    if (type === 'stories') {
+        if (item === "قصة أسد الغابة") targetFunction = "loadStory()";
+        else if (item === "قصة الأرنب والسلحفاة") targetFunction = "loadStory2()";
+        else if (item === "قصة التاجر والميزان") targetFunction = "loadStory3()";
+    } else {
+        // تأكدي أن المسميات هنا تطابق ما يتم تخزينه في المصفوفة بالضبط
+        if (item.includes("التنوين")) targetFunction = "loadTanweenLesson()";
+        else if (item.includes("التعريف")) targetFunction = "loadAlDefinition()";
+        else targetFunction = "loadShadda()";
+    }
+  display.innerHTML += `
+                <button class="btn-main" onclick="${targetFunction}" style="background: rgba(34, 197, 94, 0.2); border: 1px solid var(--accent-green);">
+                    ${type === 'stories' ? '📖' : '📘'} ${item}
+                </button>`;
+        });
+        speak(speech);
+    }
+}
+function checkAnswer(index, selected) {
+    const correct = stories[currentStory].vocab[index].correct;
+    if (selected === correct) {
+        speak("إجابة صحيحة! أحسنتِ يا بطلة.", () => {
+            runQuestion(index + 1);
+        });
+    } else {
+        speak("للأسف، إجابة خاطئة. حاولي مرة أخرى!");
+    }
+}
+function loadShadda() {
+    currentGrammar = "shadda";
+    document.getElementById('grammar-title').innerText = grammarLessons.shadda.title;
+    document.getElementById('grammar-text-div').innerText = grammarLessons.shadda.content;
+    showScreen('view-grammar-screen');
+    speak("درس الشدة. يمكنك الاستماع للقاعدة أو ايقافها عند الحاجة، و عند الانتهاء يمكنك الضغط اختبار.");
+updateGrammarStarUI();
+}
+function playGrammar() {
+    // استخدمي grammarLessons بدلاً من grammarData
+    const text = grammarLessons[currentGrammar].content; 
+    speak(text);
+}
+
+// دالة مفضلات القواعد
+function toggleFavoriteGrammar(title, event) {
+    event.stopPropagation();
+    if (favorites.grammar.includes(title)) {
+        favorites.grammar = favorites.grammar.filter(item => item !== title);
+		speak("تمت الإزالة من المفضلات"); // السطر المضاف للحذف
+    } else {
+        favorites.grammar.push(title);
+		speak("تمت الإضافة إلى المفضلات"); // السطر المضاف للإضافة
+    }
+    localStorage.setItem('myFavorites', JSON.stringify(favorites));
+    updateGrammarStarUI();
+}
+function startGrammarQuiz() {
+    // 1. تحديد رقم السؤال من الصفر
+    currentGrammarQ = 0; 
+document.getElementById('g-quiz-title').innerText = "اختبار " + grammarLessons[currentGrammar].title;
+    // 2. فتح شاشة اختبار القواعد (تأكدي أن اسمها grammar-quiz-screen)
+    showScreen('grammar-quiz-screen'); 
+
+    // 3. تشغيل أول سؤال بناءً على الدرس المفتوح (شدة أو تنوين)
+    runGrammarQuestion(); 
+}
+function playGrammarContent() {
+    // هاد السطر بياخد الكلام من "content" تاعت الدرس اللي فتحتيه حالياً
+    const text = grammarLessons[currentGrammar].content;
+    speak(text);
+}
+function runGrammarQuestion() {
+    let currentQuiz = grammarLessons[currentGrammar].quiz;
+    
+    if (currentGrammarQ >= currentQuiz.length) {
+        speak("رائع جداً! لقد أنهيت الاختبار بنجاح.", () => showScreen('grammar-menu-screen'));
+        return;
+    }
+
+    const data = currentQuiz[currentGrammarQ];
+    document.getElementById('g-quiz-question').innerText = data.q;
+    const div = document.getElementById('g-quiz-options');
+    div.innerHTML = "";
+
+    let speech = `السؤال: ${data.q}. الخيارات هي: `;
+    data.options.forEach((opt, i) => {
+        speech += `الخيار ${i + 1}: ${opt}. `;
+        div.innerHTML += `<button class="btn-main" onclick="checkGrammarAnswer(${i})">خيار ${i + 1}: ${opt}</button>`;
+    });
+    speak(speech);
+}
+function checkGrammarAnswer(selected) {
+const correct = grammarLessons[currentGrammar].quiz[currentGrammarQ].correct;
+    if (selected === correct) {
+        speak("إجابة صحيحة! أحسنت يا بطل.", () => {
+            currentGrammarQ++;
+            runGrammarQuestion();
+        });
+    } else {
+        speak("للأسف إجابة خاطئة، حاول مرة أخرى.");
+    }
+}
+function loadStory2() {
+    currentStory = "rabbit"; // تحديث القصة الحالية
+    
+    // التعديل هنا: سحب البيانات مباشرة من كائن القصص دون تكرار
+    vocabData = stories.rabbit.vocab; 
+
+    document.getElementById('story-title').innerText = "الأرنب والسلحفاة";
+    document.getElementById('story-text-div').innerText = story2Content;
+    showScreen('view-story-screen');
+        speak("قصة الأرنب والسلحفاة. يمكنك الاستماع للقصة عن طريق زر استمع للقصة و يمكنك التوقف عن الاستماع عن طريق زر إيقاف القصة. و يمكنك تعلم المفردات و المعاني و معرفة وصف الشخصيات و و الاستماع إلى العبرة من القصة");
+}
+function playVocab() {
+    let speech = "المعاني هي: ";
+    
+    vocabData.forEach(v => {
+        speech += `${v.word} تعني ${v.meaning}. `;
+    });
+
+    speak(speech);
+}
+function loadStory3() {
+    currentStory = "merchant"; // تحديث اسم القصة الحالية
+    
+    // تحديث مصفوفة المعاني لتصبح معاني التاجر
+    vocabData = stories.merchant.vocab; 
+
+    document.getElementById('story-title').innerText = stories.merchant.title;
+    document.getElementById('story-text-div').innerText = stories.merchant.content;
+
+    showScreen('view-story-screen');
+    speak("قصة التاجر و الميزان العادل. يمكنك الاستماع للقصة عن طريق زر استمع للقصة  و  يمكنك التوقف عن الاستماع عن طريق زر إيقاف القصة. و يمكنك تعلم المفردات و المعاني و معرفة وصف الشخصيات و و الاستماع إلى العبرة من القصة");
+}
+function updateStoryStars() {
+    const star1 = document.getElementById('fav-star-list');
+    const star2 = document.getElementById('fav-star-story2');
+    const star3 = document.getElementById('fav-star-story3');
+
+    if (star1) {
+        if (favorites.stories.includes("قصة أسد الغابة")) {
+            star1.innerText = "★";
+            star1.style.color = "#fbbf24";
+        } else {
+            star1.innerText = "☆";
+            star1.style.color = "#64748b";
+        }
+    }
+
+    if (star2) {
+        if (favorites.stories.includes("قصة الأرنب والسلحفاة")) {
+            star2.innerText = "★";
+            star2.style.color = "#fbbf24";
+        } else {
+            star2.innerText = "☆";
+            star2.style.color = "#64748b";
+        }
+    }
+
+    if (star3) {
+        if (favorites.stories.includes("قصة التاجر والميزان")) {
+            star3.innerText = "★";
+            star3.style.color = "#fbbf24";
+        } else {
+            star3.innerText = "☆";
+            star3.style.color = "#64748b";
+        }
+    }
+}
+function loadTanweenLesson() {
+   currentGrammar = "tanween";
+    document.getElementById('grammar-title').innerText = grammarLessons.tanween.title;
+    document.getElementById('grammar-text-div').innerText = grammarLessons.tanween.content;
+    showScreen('view-grammar-screen');
+    speak("درس التنوين. يمكنك الاستماع للقاعدة أو ايقافها عند الحاجة، و عند الانتهاء يمكنك الضغط على زر الاختبار");
+updateGrammarStarUI();
+}
+function loadAlDefinition() {
+    currentGrammar = "alDefinition";
+    document.getElementById('grammar-title').innerText = grammarLessons.alDefinition.title;
+    document.getElementById('grammar-text-div').innerText = grammarLessons.alDefinition.content;
+    showScreen('view-grammar-screen');
+    speak("درس ال التعريف. يمكنك الاستماع للقاعدة أو ايقافها، وعند الانتهاء يمكنك الضغط على زر الاختبار.");
+    updateGrammarStarUI();
+}
+
+// ولا تنسي تحديث دالة updateGrammarStarUI لتشمل النجمة الجديدة
+function updateGrammarStarUI() {
+    const starShadda = document.getElementById('fav-star-shadda');
+    const starTanween = document.getElementById('fav-star-tanween');
+    const starAl = document.getElementById('fav-star-al'); // السطر الجديد
+
+    if (starShadda) {
+        starShadda.innerText = favorites.grammar.includes("درس الشدة") ? "★" : "☆";
+        starShadda.style.color = favorites.grammar.includes("درس الشدة") ? "#fbbf24" : "#64748b";
+    }
+    if (starTanween) {
+        starTanween.innerText = favorites.grammar.includes("درس التنوين") ? "★" : "☆";
+        starTanween.style.color = favorites.grammar.includes("درس التنوين") ? "#fbbf24" : "#64748b";
+    }
+    if (starAl) { // تحديث نجمة ال التعريف
+        starAl.innerText = favorites.grammar.includes("درس ال التعريف") ? "★" : "☆";
+        starAl.style.color = favorites.grammar.includes("درس ال التعريف") ? "#fbbf24" : "#64748b";
+    }
+	function showGrammarMenu() {
+    // السطر اللي بيفتح الشاشة
+    showScreen('grammar-menu-screen'); 
+    
+    // النص الصوتي اللي طلبتيه
+    speak("قائمة القواعد، تحتوي القائمة على عدة قواعد منها: درس الشدة، ودرس التنوين، ودرس ال التعريف. يمكنك إضافة القاعدة التي تعجبك إلى قائمة المفضلات عن طريق النجمة الموضوعة بجانب الأيقونة.");
+}
+}
+
+</script>
+</body>
+</html>
